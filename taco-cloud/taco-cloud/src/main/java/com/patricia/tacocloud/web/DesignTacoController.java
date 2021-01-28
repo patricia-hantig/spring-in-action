@@ -2,20 +2,17 @@ package com.patricia.tacocloud.web;
 
 import com.patricia.tacocloud.Ingredient;
 import com.patricia.tacocloud.Ingredient.Type;
-import com.patricia.tacocloud.Order;
 import com.patricia.tacocloud.Taco;
 
-import com.patricia.tacocloud.data.IngredientRepository;
-import com.patricia.tacocloud.data.TacoRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,11 +20,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Controller
 @RequestMapping("/design")
-@SessionAttributes("order")
 public class DesignTacoController {
 
-    // chapter 2: showDesignForm() method
-    /*@GetMapping
+    @GetMapping
     public String showDesignForm(Model model) {
 
         // Model = an object that passes data between a controller and the view that have to render data
@@ -62,31 +57,6 @@ public class DesignTacoController {
 
         // !!! Spring does this for us:
         //          -> The data that's placed in Model attributes is copied into the servlet response attributes - where the view can find them
-    }*/
-
-    private final IngredientRepository ingredientRepository;
-
-    private TacoRepository designRepository;
-
-    @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository designRepository) {
-        this.ingredientRepository = ingredientRepository;
-        this.designRepository = designRepository;
-    }
-    // here all the Repositories are injected into DesignTacoController and they can now be used in the next methods
-
-    @GetMapping
-    public String showDesignForm(Model model) {
-        List<Ingredient> ingredients = new ArrayList<>();
-        ingredientRepository.findAll().forEach(i -> ingredients.add(i));
-
-        Type[] types = Ingredient.Type.values();
-        for (Type type : types) {
-            model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
-        }
-
-        // model.addAttribute("taco", new Taco());
-        return "design";
     }
 
     private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
@@ -95,22 +65,12 @@ public class DesignTacoController {
                 .collect(Collectors.toList());
     }
 
-    @ModelAttribute(name = "order")
-    public Order order() {
-        return new Order();
-    }
-
-    @ModelAttribute(name = "taco")
-    public Taco taco() {
-        return new Taco();
-    }
-
     // When we click on the submit button we get: HTTP 405 Error: Request Method "POST" Not Supported
     // Why? - because method attribute (in design.html) is set to POST & <form> doesn't have an action attribute => when the form is submitted:
     //      -> the browser gather up all the data in the form & send it to the server in an HTTP POST request to the same path for which a GET request displayed the form - the /design path
     // Solution: - We need a controller handler method to choose what happens when we receive that POST request
     @PostMapping
-    public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
+    public String processDesign(@Valid Taco design, Errors errors) {
         if (errors.hasErrors()) {
             return "design";
         }
@@ -121,18 +81,10 @@ public class DesignTacoController {
         // We'll do this in chapter 3
         log.info("Processing taco: " + design);
 
-        Taco saved = designRepository.save(design);
-        order.addDesign(saved);
-
         return "redirect:/orders/current";
     }
     // when the form is submitted: the fields in the form are bound to properties of a Taco object => the method can do whatever with the Taco object
     // returns "redirect:/orders/current" => after the method completes -> the user browser is redirected to the relative path: /orders/current
-    // this method now accepts an Order object as a parameter: @ModelAttribute Order order - to indicate that its value
-    //                                              should come from the model and that Sprig MVC shouldn't attempt to bind request parameters to it
-    // after checking for validation errors, processDesign() uses the injected Taco-Repository to save the taco
-    // then adds the Taco object to the Order that's kept in the session
-    // the Order object remains in the session and isn’t saved to the database until the user completes and submits the order form
 }
 
 // ■■■ Annotations:
@@ -164,8 +116,3 @@ public class DesignTacoController {
 
 // ■ Performing validations at form binding:
 // @Valid = tells Spring MCV to perform validation on the submitted Taco object after it's bound to the submitted form data  & before the processDesign() method is called
-
-// Chapter 3:
-// @SessionAttributes("order") class level annotation = specifies any model objects like the order attribute should be kept in session and available across multiple requests
-// @ModelAttribute annotation from method order() (or taco()) = ensures that an Order object will be created in the model
-// Unlike the Taco object in the session -> you need the order to be present across multiple requests so that you can create multiple tacos and add them to the order

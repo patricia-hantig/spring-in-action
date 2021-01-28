@@ -6,47 +6,33 @@ import org.hibernate.validator.constraints.CreditCardNumber;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Data
 public class Order {
 
-    @NotBlank(message = "Delivery Name is required")
-    private String deliveryName;
+    @NotBlank(message = "Name is required")
+    private String name;
 
-    @NotBlank(message = "Delivery Street is required")
-    private String deliveryStreet;
+    @NotBlank(message = "Street is required")
+    private String street;
 
-    @NotBlank(message = "Delivery City is required")
-    private String deliveryCity;
+    @NotBlank(message = "City is required")
+    private String city;
 
-    @NotBlank(message = "Delivery State is required")
-    private String deliveryState;
+    @NotBlank(message = "State is required")
+    private String state;
 
-    @NotBlank(message = "Delivery Zip code is required")
-    private String deliveryZip;
+    @NotBlank(message = "Zip code is required")
+    private String zip;
 
     @CreditCardNumber(message = "Not a valid credit card number")
     private String ccNumber;
-    // ex of a valid card number: 4111111111111111
 
     @Pattern(regexp = "^(0[1-9]|1[0-2])([\\/])([1-9][0-9])$", message="Must be formatted MM/YY")
     private String ccExpiration;
 
     @Digits(integer = 3, fraction = 0, message = "Invalid CVV")
     private String ccCVV;
-
-    private Long id;            // field that uniquely identifies the object
-
-    private Date placedAt;     // filed when an Order is placed
-
-    private List<Taco> tacos = new ArrayList<>();
-
-    public void addDesign(Taco design) {
-        this.tacos.add(design);
-    }
 }
 
 // ■ Validating form input:
