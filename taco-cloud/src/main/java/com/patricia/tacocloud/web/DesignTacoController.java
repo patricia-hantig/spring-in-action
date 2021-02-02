@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,44 +24,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/design")
 @SessionAttributes("order")
 public class DesignTacoController {
-
-    // chapter 2: showDesignForm() method
-    /*@GetMapping
-    public String showDesignForm(Model model) {
-
-        // Model = an object that passes data between a controller and the view that have to render data
-
-        List<Ingredient> ingredients = Arrays.asList(
-                new Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
-                new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
-                new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
-                new Ingredient("CARN", "Carnitas", Type.PROTEIN),
-                new Ingredient("TMTO", "Diced Tomatoes", Type.VEGGIES),
-                new Ingredient("LETC", "Lettuce", Type.VEGGIES),
-                new Ingredient("CHED", "Cheddar", Type.CHEESE),
-                new Ingredient("JACK", "Monterrey Jack", Type.CHEESE),
-                new Ingredient("SLSA", "Salsa", Type.SAUCE),
-                new Ingredient("SRCR", "Sour Cream", Type.SAUCE)
-        );
-        // here we construct a list of Ingredient objects - the list is hardcoded for now (we will change it to pull the list from taco ingredients from a database)
-
-        Type[] types = Ingredient.Type.values();
-        // then a list of ingredient types is created
-
-        for (Type type : types) {
-            model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type)); // the list is filtered by ingredient type
-        }
-        // a list of ingredient types is added as an attribute to the Model object (that's passed into showDesignForm())
-
-        model.addAttribute("taco", new Taco());
-        // besides the other attributes added to model, we also add an attribute: name = "design" with value = new Taco()
-
-        return "design";
-        // returns "design" - which is the logical name of the view that will be used to render the model to the browser
-
-        // !!! Spring does this for us:
-        //          -> The data that's placed in Model attributes is copied into the servlet response attributes - where the view can find them
-    }*/
 
     private final IngredientRepository ingredientRepository;
 
@@ -85,7 +46,6 @@ public class DesignTacoController {
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
         }
 
-        // model.addAttribute("taco", new Taco());
         return "design";
     }
 
@@ -110,7 +70,7 @@ public class DesignTacoController {
     //      -> the browser gather up all the data in the form & send it to the server in an HTTP POST request to the same path for which a GET request displayed the form - the /design path
     // Solution: - We need a controller handler method to choose what happens when we receive that POST request
     @PostMapping
-    public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
+    public String processDesign(@Valid Taco taco, Errors errors, @ModelAttribute Order order) {
         if (errors.hasErrors()) {
             return "design";
         }
@@ -119,9 +79,9 @@ public class DesignTacoController {
 
         // Save the taco design...
         // We'll do this in chapter 3
-        log.info("Processing taco: " + design);
+        log.info("Processing taco: " + taco);
 
-        Taco saved = designRepository.save(design);
+        Taco saved = designRepository.save(taco);
         order.addDesign(saved);
 
         return "redirect:/orders/current";
