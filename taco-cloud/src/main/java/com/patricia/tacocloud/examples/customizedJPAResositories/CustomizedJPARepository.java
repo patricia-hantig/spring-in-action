@@ -1,4 +1,4 @@
-package com.patricia.tacocloud.examples.readingAndWritingDataWithANDWithoutJDBC;
+package com.patricia.tacocloud.examples.customizedJPAResositories;
 
 import com.patricia.tacocloud.Order;
 import org.springframework.data.jpa.repository.Query;
