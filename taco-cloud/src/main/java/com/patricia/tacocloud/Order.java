@@ -53,6 +53,9 @@ public class Order implements Serializable {
     @ManyToMany(targetEntity = Taco.class)
     private List<Taco> tacos = new ArrayList<>();
 
+    @ManyToOne
+    private User user;
+
     public void addDesign(Taco design) {
         this.tacos.add(design);
     }
@@ -83,3 +86,4 @@ public class Order implements Serializable {
 // @ManyToMany(targetEntity = Ingredient.class) - declare the relationship between an Order & its associated Taco list
 //                                              = An Order can have many Taco objects & an Taco can be part of many Orders
 // @PrePersist - we use it to set the property placedAt to the current date and time before Order is persisted
+// ManyToOne - we need this relationship to have an Order entity associated with the User entity that created the order

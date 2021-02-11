@@ -1,6 +1,7 @@
 package com.patricia.tacocloud.examples.customizedJPAResositories;
 
 import com.patricia.tacocloud.Order;
+import com.patricia.tacocloud.Taco;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -25,14 +26,15 @@ public interface CustomizedJPARepository extends CrudRepository<Order, Long> {
     // verb = find, subject = orders, predicate = deliveryZip & placedAt , between - means the value must fall between the given times
 
     // ex3
-    List<Order> findByDeliveryToAndDeliveryCityAllIgnoresCase(String deliveryTo, String deliveryCity);
+    List<Order> findByDeliveryStreetAndDeliveryCityAllIgnoreCase(String deliveryTo, String deliveryCity);
 
     // ex4
-    List<Order> findByDeliveryCityOrderByDeliveryTo(String city);
+    List<Order> findByDeliveryCityOrderByDeliveryStreet(String city);
 
     // ex5: for complex queries which is impossible to achieve using naming conventions
-    @Query("Order o where o.deliveryCity='Seattle'")
+    @Query("from Order o where o.deliveryCity='Seattle'")
     List<Order> readOrdersDeliveredInSeattle();
+    // if you run the above query make sure all the tables are mapped otherwise you get: Taco_Order is not mapped
 }
 
 
