@@ -1,0 +1,13 @@
+dn: dc=breadcrumbdata,dc=com
+objectClass: top
+objectClass: domain
+
+dn: uid=paul,dc=breadcrumbdata,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: patri test
+sn: patri
+uid: patri
+userPassword: Patricitas
