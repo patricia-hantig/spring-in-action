@@ -5,8 +5,10 @@ import com.patricia.tacocloud.Ingredient.Type;
 import com.patricia.tacocloud.Order;
 import com.patricia.tacocloud.Taco;
 
+import com.patricia.tacocloud.User;
 import com.patricia.tacocloud.data.IngredientRepository;
 import com.patricia.tacocloud.data.TacoRepository;
+import com.patricia.tacocloud.data.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,15 +32,18 @@ public class DesignTacoController {
 
     private TacoRepository designRepository;
 
+    private UserRepository userRepository;
+
     @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository designRepository) {
+    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository designRepository, UserRepository userRepository) {
         this.ingredientRepository = ingredientRepository;
         this.designRepository = designRepository;
+        this.userRepository = userRepository;
     }
     // here all the Repositories are injected into DesignTacoController and they can now be used in the next methods
 
     @GetMapping
-    public String showDesignForm(Model model) {
+    public String showDesignForm(Model model, Principal principal) {
         List<Ingredient> ingredients = new ArrayList<>();
         ingredientRepository.findAll().forEach(i -> ingredients.add(i));
 
@@ -45,6 +51,11 @@ public class DesignTacoController {
         for (Type type : types) {
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
         }
+
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username);
+        model.addAttribute("user", user);
+        // this populates the property 'user.fullname' from design.html
 
         return "design";
     }
