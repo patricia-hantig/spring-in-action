@@ -4,17 +4,17 @@ import com.patricia.tacocloud.Order;
 import com.patricia.tacocloud.User;
 import com.patricia.tacocloud.data.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import sun.plugin.liveconnect.SecurityContextHelper;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -25,17 +25,46 @@ import java.security.Principal;
 @Controller
 @RequestMapping("/orders")
 @SessionAttributes("order")
+/*@ConfigurationProperties(prefix = "taco.orders")*/    // not needed because we use OrderProps
 public class OrderController {
+
+    // by default pageSize is 20, but it's changed using the value from application.yml for property taco.orders.pageSize
+    /*private int pageSize = 20;
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }*/
+    // it's not mandatory that the configuration properties to be set on a controller => we use holder class OrderProps
+    // is replaced by:
+    private OrderProps orderProps;
 
     private OrderRepository orderRepository;
 
-    public OrderController(OrderRepository orderRepository) {
+    public OrderController(OrderRepository orderRepository, OrderProps orderProps) {
         this.orderRepository = orderRepository;
+        this.orderProps = orderProps;
     }
-    // here we inject OrderRepository into OrderController
+    // here we inject OrderRepository & holder class OrderProps into OrderController
 
     @GetMapping("/current")                         // path here is: /orders/current
-    public String orderForm() {
+    public String orderForm(@AuthenticationPrincipal User user, @ModelAttribute Order order) {
+
+        if (order.getDeliveryName() == null) {
+            order.setDeliveryName(user.getFullname());
+        }
+        if (order.getDeliveryStreet() == null) {
+            order.setDeliveryStreet(user.getStreet());
+        }
+        if (order.getDeliveryCity() == null) {
+            order.setDeliveryCity(user.getCity());
+        }
+        if (order.getDeliveryState() == null) {
+            order.setDeliveryState(user.getState());
+        }
+        if (order.getDeliveryZip() == null) {
+            order.setDeliveryZip(user.getZip());
+        } // all this auto-completes the above fields with the values from current user that is logged in
+
         return "orderForm";
     }
 
@@ -61,6 +90,19 @@ public class OrderController {
     // here the Order object submitted in the form (which also happens to be the same Order object maintained in session) is saved via the save() method on the injected OrderRepository
     // after the order is saved - we don't need it in the session anymore so
     //          the processOrder() method asks for a SessionStatus parameter and calls its setComplete() method to reset the session
+
+    // the next method shows how @ConfigurationProperties works:
+    @GetMapping
+    public String ordersForUser(@AuthenticationPrincipal User user, Model model) {
+
+        // we want to limit the numbers of orders displayed to the most recent 20 orders
+        //Pageable pageable = PageRequest.of(0, pageSize);
+
+        // we use the property pageSize from OrderProps
+        Pageable pageable = PageRequest.of(0, orderProps.getPageSize());
+        model.addAttribute("orders", orderRepository.findByUserOrderByPlacedAtDesc(user, pageable));
+        return "orderList";
+    }
 }
 
 // ■ Performing validations at form binding:
@@ -98,3 +140,7 @@ public String processOrder(@Valid Order order, Errors errors, SessionStatus sess
 // the advantage is that: it can be used anywhere in the application - not only in a controller's handler methods
 /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 User user = (User) authentication.getPrincipal();*/
+
+// Chapter 5:
+// @ConfigurationProperties(prefix = "taco.orders") = it specifies that the properties of that bean can be injected from properties in the Spring environment
+// file additional-spring-configuration-metadata.json - is needed for declaring configuration property metadata (not so useful in IntelliJ)

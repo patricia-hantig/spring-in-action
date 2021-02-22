@@ -1,10 +1,14 @@
 package com.patricia.tacocloud.data;
 
 import com.patricia.tacocloud.Order;
+import com.patricia.tacocloud.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
-public interface OrderRepository extends CrudRepository<Order, Long> {
+import java.util.List;
 
+public interface OrderRepository extends CrudRepository<Order, Long> {
+    List<Order> findByUserOrderByPlacedAtDesc(User user, Pageable pageable);
 }
 
 // CrudRepository declares about a dozen methods for CRUD operations
