@@ -33,6 +33,7 @@
 		<module>tacocloud-ui</module>
 		<module>tacocloud-web</module>
 		<module>tacos</module>
-	</modules>
+        <module>tacocloud-restclient</module>
+    </modules>
 
 </project>

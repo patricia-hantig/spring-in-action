@@ -5,8 +5,10 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.RepresentationModel;
 //import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.server.core.Relation;
+import tacos.Ingredient;
 import tacos.Taco;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,14 +38,21 @@ public class TacoResource extends RepresentationModel<TacoResource> {
     private static final IngredientResourceAssembler ingredientAssembler = new IngredientResourceAssembler();
 
     @Getter
-//    private final List<IngredientResource> ingredients;
-    private final CollectionModel<IngredientResource> ingredients;
+    private final List<IngredientResource> ingredients;
+//    private final CollectionModel<IngredientResource> ingredients;
+    // !!!!! here we changed from a list of CollectionModel<IngredientResource> to List<IngredientResource>
+    //  - we need this change because in the JSON response from localhost:8080/api/tacos/recent we need a list of ingredients
+    //  instead of list of ingredients which contains an "_embedded" list of ingredients
 
     public TacoResource(Taco taco) {
         this.name = taco.getName();
         this.createdAt = taco.getCreatedAt();
 //      this.ingredients = ingredientAssembler.toResources(taco.getIngredients());
-        this.ingredients = ingredientAssembler.toCollectionModel(taco.getIngredients());
+        this.ingredients = new ArrayList<>();
+        for (Ingredient ingredient : taco.getIngredients()) {
+            this.ingredients.add(ingredientAssembler.toModel(ingredient));
+        }
+//        this.ingredients = ingredientAssembler.toCollectionModel(taco.getIngredients());
     }
     // now the recent tacos list has hyperlinks:
     //          - for itself (recents link)
