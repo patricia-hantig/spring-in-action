@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/ingredients", produces = "application/json")
+@RequestMapping(path = "/ingredientsx", produces = "application/json")
 @CrossOrigin(origins = "*")
 public class IngredientController {
 

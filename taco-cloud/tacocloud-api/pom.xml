@@ -68,6 +68,27 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- needed for JMS messaging -->
+        <!--<dependency>
+            <groupId>com.patricia</groupId>
+            <artifactId>tacocloud-messaging-jms</artifactId>
+            <version>${tacocloud.version}</version>
+        </dependency>-->
+
+        <!-- needed for RabbitMQ messaging -->
+        <!--<dependency>
+            <groupId>com.patricia</groupId>
+            <artifactId>tacocloud-messaging-rabbitmq</artifactId>
+            <version>${tacocloud.version}</version>
+        </dependency>-->
+
+        <!-- needed for Kafka messaging -->
+        <dependency>
+            <groupId>com.patricia</groupId>
+            <artifactId>tacocloud-messaging-kafka</artifactId>
+            <version>${tacocloud.version}</version>
+        </dependency>
+
     </dependencies>
 
 

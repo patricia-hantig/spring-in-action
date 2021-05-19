@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tacos.Order;
 import tacos.data.OrderRepository;
+import tacos.messaging.OrderMessagingService;
 
 @RestController
 @RequestMapping(path="/orders", produces="application/json")
@@ -12,9 +13,12 @@ import tacos.data.OrderRepository;
 public class OrderAPIController {
 
     private OrderRepository orderRepository;
+    private OrderMessagingService orderMessages;
+    //make sure which OrderMessagingService interface you want to use (for Jms, RabbitMQ or Kafka)
 
-    public OrderAPIController(OrderRepository orderRepository) {
+    public OrderAPIController(OrderRepository orderRepository, OrderMessagingService orderMessages) {
         this.orderRepository = orderRepository;
+        this.orderMessages = orderMessages;
     }
     // here we inject OrderRepository into OrderController
 
@@ -26,6 +30,7 @@ public class OrderAPIController {
     @PostMapping(consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Order postOrder(@RequestBody Order order) {
+        orderMessages.sendOrder(order);
         return orderRepository.save(order);
     }
 

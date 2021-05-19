@@ -34,6 +34,10 @@
 		<module>tacocloud-web</module>
 		<module>tacos</module>
         <module>tacocloud-restclient</module>
-    </modules>
+        <module>tacocloud-messaging-jms</module>
+		<module>tacocloud-kitchen</module>
+		<module>tacocloud-messaging-kafka</module>
+		<module>tacocloud-messaging-rabbitmq</module>
+	</modules>
 
 </project>
