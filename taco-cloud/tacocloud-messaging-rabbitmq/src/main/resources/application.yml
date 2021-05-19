@@ -1,0 +1,7 @@
+# setting the RabbitMQ properties
+spring:
+  rabbitmq:
+    template:
+      exchange: tacocloud.orders
+      routing-key: tacocloud.order.queue
+      #default-queue: tacocloud.order.queue
