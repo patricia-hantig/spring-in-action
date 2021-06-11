@@ -1,0 +1,15 @@
+spring:
+  main:
+    web-application-type: none
+
+tacocloud:
+  api:
+    url: http://localhost:8080/orders/fromEmail
+
+  email:
+    host: imap.mail.yahoo.com
+    port: 993
+    mailbox: INBOX
+    username: email.test@yahoo.com
+    password: somepassword
+    poll-rate: 10000
