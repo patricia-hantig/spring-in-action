@@ -4,8 +4,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tacos.Order;
+import tacos.Taco;
 import tacos.data.OrderRepository;
+import tacos.data.TacoRepository;
 import tacos.messaging.OrderMessagingService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path="/orders", produces="application/json")
@@ -13,24 +17,49 @@ import tacos.messaging.OrderMessagingService;
 public class OrderAPIController {
 
     private OrderRepository orderRepository;
+    private TacoRepository tacoRepository;
     private OrderMessagingService orderMessages;
     //make sure which OrderMessagingService interface you want to use (for Jms, RabbitMQ or Kafka)
+    private EmailOrderService emailOrderService;
 
-    public OrderAPIController(OrderRepository orderRepository, OrderMessagingService orderMessages) {
+    public OrderAPIController(OrderRepository orderRepository, OrderMessagingService orderMessages, EmailOrderService emailOrderService, TacoRepository tacoRepository) {
         this.orderRepository = orderRepository;
         this.orderMessages = orderMessages;
+        this.emailOrderService = emailOrderService;
+        this.tacoRepository = tacoRepository;
     }
-    // here we inject OrderRepository into OrderController
+    // here we inject the necessary repositories into OrderController
 
     @GetMapping(produces = "application/json")
     public Iterable<Order> allOrders() {
         return orderRepository.findAll();
     }
 
+    // ■ The endpoint that handles POST requests for /orders
     @PostMapping(consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Order postOrder(@RequestBody Order order) {
         orderMessages.sendOrder(order);
+        return orderRepository.save(order);
+    }
+
+    // ■ The endpoint that handles POST requests for /orders/fromEmail
+    @PostMapping(path = "/fromEmail", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Order postOrderFromEmail(@RequestBody EmailOrder emailOrder) {
+
+        Order order = emailOrderService.convertEmailOrderToDomainOrder(emailOrder);
+        orderMessages.sendOrder(order);
+
+        // ! We need to get all the tacos & save them before saving an order (tacoId is a foreign key for order)
+        // when we want to save an order we need to save the taco/s before
+        // otherwise:  exception:   org.hibernate.TransientObjectException: object references an unsaved transient instance - save the transient instance before flushing: tacos.Taco
+        //	                        at org.hibernate.engine.internal.ForeignKeys.getEntityIdentifierIfNotUnsaved(ForeignKeys.java:347) ~[hibernate-core-5.4.25.Final.jar:5.4.25.Final]
+        for (Taco taco : order.getTacos()) {
+            Taco savedTaco = tacoRepository.save(taco);
+            taco.setId(savedTaco.getId());
+        }
+
         return orderRepository.save(order);
     }
 

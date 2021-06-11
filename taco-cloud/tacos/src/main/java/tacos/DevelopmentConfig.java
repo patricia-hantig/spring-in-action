@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tacos.data.IngredientRepository;
+import tacos.data.PaymentMethodRepository;
 import tacos.data.TacoRepository;
 import tacos.data.UserRepository;
 
@@ -16,7 +17,8 @@ import java.util.Arrays;
 public class DevelopmentConfig {
 
     @Bean
-    public CommandLineRunner dataLoader(IngredientRepository ingredientRepository, UserRepository userRepository, PasswordEncoder encoder, TacoRepository tacoRepository) {
+    public CommandLineRunner dataLoader(IngredientRepository ingredientRepository, UserRepository userRepository,
+                                        PasswordEncoder encoder, TacoRepository tacoRepository, PaymentMethodRepository paymentMethodRepository) {
         return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
@@ -42,7 +44,12 @@ public class DevelopmentConfig {
                 ingredientRepository.save(sourCream);
 
                 userRepository.save(new User("patri", encoder.encode("password"),
-                        "Patricia", "10 StreetName", "San Francisco", "CA", "11111", "123-123-1234"));
+                        "Patricia", "10 StreetName", "San Francisco", "CA", "11111", "123-123-1234", "patri@test.com"));
+
+                userRepository.save(new User("patricia", encoder.encode("password"),
+                        "Patricia", "10 StName", "San Francisco", "CA", "11111", "123-123-1234", "patri@test.com"));
+
+                paymentMethodRepository.save(new PaymentMethod(userRepository.findByUsername("patricia"), "4111111111111111", "907", "07/21"));
 
                 Taco taco1 = new Taco();
                 taco1.setName("Carnivore");
