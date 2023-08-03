@@ -34,3 +34,5 @@ build/
 .vscode/
 /tacocloud-ui/node_modules/
 /simple-flow/output/
+
+.mvn/

@@ -44,6 +44,13 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!--needed for working with reactive programs-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
