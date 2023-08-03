@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @SpringBootApplication												// Spring Boot Application
+@ComponentScan("tacos")
 public class TacoCloudApplication /*implements CommandLineRunner*/ {
 
 	public static void main(String[] args) {
